@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="container">
+            <div id="header"></div>
+            <div id="content">
+                <div class="xlg_col">
+                    <div class="nav">
+                        <h1>Dojo Wall</h1>
+                        <div>
+                            <p>Welcome! {{user.first_name}}!</p>
+                            <a href="/logout">Logout</a>
+                        </div>
+                    </div>
+                    <p>What's on your mind? Create a new post:</p>
+                    <form action="/add/post" method="post">
+                        {% with messages = get_flashed_messages(category_filter=["post"]) %}
+                        {% if messages %}
+                        {% for message in messages %}
+                        <p class="error">{{message}}</p>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <input type="text" name="content" style="width:700px" id="content">
+                        <input type="hidden" name="user_id" value="{{user.id}}">
+                        <input type="submit" value="Publish">
+                    </form>
+                    <h2>All Community Posts:</h2>
+                    <fieldset>
+                        {%for a_post in posts%}
+                        <div>
+                            <h3>{{a_post.owner.first_name}} - {{ a_post.created_at.strftime("%b %d, %Y %I:%M %p") }}</h3>
+                        </div>
+                        <p style="padding:10px">{{a_post.content}}</p>
+                        <fieldset>
+                            
+                            {% for a_comment in comments %}
+                                {% if a_comment.post.id == a_post.id %}
+                                    <h4>{{a_comment.author.first_name}} - {{ a_comment.created_at.strftime("%b %d, %Y %I:%M %p") }}</h4>
+                                    <p style="padding: 10px;">{{a_comment.comment}}</p>
+                                {% endif %}
+                            
+                            
+                            {% endfor %}
+                            {% with messages = get_flashed_messages(category_filter=["comment-"~a_post.id|string]) %}
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <p class="error">{{message}}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            <form action="/add/comment" method="post">
+                                <input type="text" name="comment" style="width: 600px;" id="comment">
+                                <input type="hidden" name="author_id" value="{{user.id}}">
+                                <input type="hidden" name="post_id" value="{{a_post.id}}">
+                                <input type="submit" value="Publish">
+                            </form>
+                        </fieldset>
+                        {%endfor%}
+                    </fieldset>
+
+                </div>
+            </div>
+            <div id="footer">
+            </div>
+        </div>
+</body>
+
+</html>
